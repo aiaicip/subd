@@ -11,7 +11,7 @@ echo "localip 172.20.1.1" >> /etc/pptpd.conf
 echo "remoteip 172.20.1.2-254" >> /etc/pptpd.conf
 echo "ms-dns 8.8.8.8" >> /etc/ppp/pptpd-options
 echo "ms-dns 8.8.4.4" >> /etc/ppp/pptpd-options
-echo "username	*	Pa55w0rd	*" >> /etc/ppp/chap-secrets 
+echo "user  	*	   abc123	   *" >> /etc/ppp/chap-secrets 
 echo "net.ipv4.ip_forward=1" >> /etc/sysctl.conf
 sysctl -p
 service pptpd restart
@@ -22,4 +22,4 @@ iptables -t nat -I POSTROUTING -o eth1 -j MASQUERADE
 iptables -I FORWARD -p tcp --tcp-flags SYN,RST SYN -s 172.20.1.0/24 -j TCPMSS  --clamp-mss-to-pmtu
 service iptables-persistent save
 iptables-save >> iptables
-EOF
+
