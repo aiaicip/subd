@@ -18,7 +18,7 @@ apt-get -y install wget || {
 }
 
 # Find out external ip 
-IP=wget -q -O - http://api.ipify.org
+IP=wget -qO - icanhazip.com
 
 if [ "x$IP" = "x" ]
 then
