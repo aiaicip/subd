@@ -330,4 +330,4 @@ echo "PLEASE REBOOT TO TAKE EFFECT"
 echo "============================"
 echo "TYPE reboot THEN ENTER "
 cat /dev/null > ~/.bash_history && history -c
-rm -f /root/d864.sh
+rm -f /root/debian864.sh
