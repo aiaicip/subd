@@ -1,8 +1,7 @@
 #!/bin/bash
 
 
-echo -e "\e[33m
-AUTOSCRIPT BY CyCloneVPN Solution
+echo -e "\e[33mAUTOSCRIPT BY CyCloneVPN Solution
 Preparing 1st stage before installation begin\e[0m"
 echo ""
 echo ""
