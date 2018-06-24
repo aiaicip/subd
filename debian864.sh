@@ -175,25 +175,6 @@ wget -O /etc/default/dropbear "https://www.dropbox.com/s/zyxl2pi0fw35f7a/dropbea
 echo "/bin/false" >> /etc/shells
 echo "/usr/sbin/nologin" >> /etc/shells
 
-#double check ip address
-apt-get -y install wget || {
-  echo "Could not install wget, required to retrieve your IP address." 
-  exit 1
-}
-
-#find out external ip 
-IP=wget -q -O - icanhazip.com
-
-if [ "x$IP" = "x" ]
-then
-  echo "============================================================"
-  echo "  !!!  COULD NOT DETECT SERVER EXTERNAL IP ADDRESS  !!!"
-else
-  echo "============================================================"
-  echo "Detected your server external ip address: $IP"
- echo "============"
-fi
-
 #installing squid3
 aptitude -y install squid3
 rm -f /etc/squid3/squid.conf
