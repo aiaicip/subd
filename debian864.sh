@@ -222,7 +222,7 @@ sed -i "s/ipserver/$IP/g" /etc/iptables.up.rules
 iptables-restore < /etc/iptables.up.rules
 
 # Badvpn
-echo "#!/bin/bash"
+echo "#!/bin/bash
 if [ "'$1'" == start ]
 then
 badvpn-udpgw --listen-addr 127.0.0.1:7300 --max-clients 1000 --max-connections-for-client 10 > /dev/null &
