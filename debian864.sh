@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 
 echo -e "\e[33m
@@ -159,7 +159,6 @@ cd ddos-deflate-master && ./install.sh
 service exim4 stop;sysv-rc-conf exim4 off 
 
 # install webmin
-cd
 wget "http://prdownloads.sourceforge.net/webadmin/webmin_1.670_all.deb"
 dpkg --install webmin_1.670_all.deb;
 apt-get -y -f install;
