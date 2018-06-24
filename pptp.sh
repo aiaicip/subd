@@ -71,7 +71,7 @@ iptables-save
 # Auto reload iptables
 cat >> /etc/network/if-pre-up.d/iptablesload << END
 #!/bin/sh
-iptables-restore < /etc/iptables.rules
+iptables-restore < /etc/iptables.up.rules
 exit 0
 
 END
