@@ -5,8 +5,7 @@ echo "This script will configure PPTP VPN"
 echo "###################################"
 
 # Install PPTP daemon service
-apt-get -y update;
-apt-get -y install pptpd;
+apt-get -y install pptpd
 
 # Set DNS
 echo "ms-dns 8.8.8.8" >> /etc/ppp/pptpd-options
