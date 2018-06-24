@@ -7,14 +7,6 @@ echo ""
 echo ""
 echo ""
 
-echo -e "\e[33m
-AUTOSCRIPT BY CyCloneVPN Solution
-
-Preparing 1st stage before installation begin\e[0m"
-echo ""
-echo ""
-echo ""
-
 apt-get update;
 apt-get -y upgrade;
 apt-get -y install wget curl;
