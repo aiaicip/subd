@@ -709,8 +709,8 @@ COMPLETE 100%
 NICE MUAHCHIKED
 DONE.
 "
-
 echo "BY CyClone VPN"
+echo "================================================"
 echo "Webmin      : http://$IP:10000"
 echo "OpenSSH     : 22"
 echo "Dropbear    : 443"
@@ -728,6 +728,7 @@ echo "Config OpenVPN   : http://$IP:85/client.ovpn"
 echo "Mirror (*.tar.gz): http://$IP:85/openvpn.tar.gz"  
 echo "Vnstat           : http://$IP:85/vnstat/"  
 echo "MRTG             : http://$IP:85/mrtg/"  
+echo "================================================"
 echo "Login VPS via Putty/Connect Bot/Juice SSH and type menu"
 echo "THANK YOU"
 echo "BYE"
