@@ -231,14 +231,38 @@ wget https://www.dropbox.com/s/9lgg4nr3f25hiua/menu
 wget https://www.dropbox.com/s/arvt35d3i3h6n83/user-list
 wget https://www.dropbox.com/s/u8ns6vxz778oi4w/monssh
 wget https://www.dropbox.com/s/8db4yzcixp4vcdl/status
+
+wget https://www.dropbox.com/s/ec5b6h6wz2xje0k/alluser-pptp
+wget https://www.dropbox.com/s/brckzqxanjo46fp/speedtest
+wget https://www.dropbox.com/s/895yubf1ld4acz4/user-add-pptp
+wget https://www.dropbox.com/s/3ogkjewftsf9086/user-delete-pptp
+wget https://www.dropbox.com/s/q91jx4e0sdcoyb7/user-detail-pptp
+wget https://www.dropbox.com/s/tuyh58voo3jxehk/user-expire-pptp
+wget https://www.dropbox.com/s/0t0ivs8d4z2b8os/user-login-pptp
 mv menu /usr/local/bin/
 mv user-list /usr/local/bin/
 mv monssh /usr/local/bin/
 mv status /usr/local/bin/
+mv alluser-pptp /usr/local/bin/
+mv speedtest /usr/local/bin/
+mv user-add-pptp /usr/local/bin/
+mv user-delete-pptp /usr/local/bin/
+mv user-detail-pptp /usr/local/bin/
+mv user-expire-pptp /usr/local/bin/
+mv user-login-pptp /usr/local/bin/
+
 chmod +x  /usr/local/bin/menu
 chmod +x  /usr/local/bin/user-list
 chmod +x  /usr/local/bin/monssh
 chmod +x  /usr/local/bin/status
+chmod +x  /usr/local/bin/alluser-pptp
+chmod +x  /usr/local/bin/speedtest
+chmod +x  /usr/local/bin/user-add-pptp
+chmod +x  /usr/local/bin/user-delete-pptp
+chmod +x  /usr/local/bin/user-detail-pptp
+chmod +x  /usr/local/bin/user-expire-pptp
+chmod +x  /usr/local/bin/user-login-pptp
+
 cd
 
 #motd
