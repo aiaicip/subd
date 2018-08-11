@@ -577,6 +577,72 @@ echo -e "\033[1;31mbadvpn stop \033[1;37m Stop Badvpn Service\033[0m"
 rm -rf /etc/badvpn-install
 cd ; rm -rf badvpn.sh badvpn-1.999.128/ badvpn-1.999.128.tar.bz2 >/dev/null 2>/dev/null
 
+
+#Setting IPtables
+cat > /etc/iptables.up.rules <<-END
+*nat
+:PREROUTING ACCEPT [0:0]
+:OUTPUT ACCEPT [0:0]
+:POSTROUTING ACCEPT [0:0]
+-A POSTROUTING -j SNAT --to-source xxxxxxxxx
+-A POSTROUTING -o eth0 -j MASQUERADE
+-A POSTROUTING -s 192.168.100.0/24 -o eth0 -j MASQUERADE
+-A POSTROUTING -s 10.1.0.0/24 -o eth0 -j MASQUERADE
+COMMIT
+
+*filter
+:INPUT ACCEPT [19406:27313311]
+:FORWARD ACCEPT [0:0]
+:OUTPUT ACCEPT [9393:434129]
+:fail2ban-ssh - [0:0]
+-A FORWARD -i eth0 -o ppp0 -m state --state RELATED,ESTABLISHED -j ACCEPT
+-A FORWARD -i ppp0 -o eth0 -j ACCEPT
+-A INPUT -p tcp -m multiport --dports 22 -j fail2ban-ssh
+-A INPUT -p ICMP --icmp-type 8 -j ACCEPT
+-A INPUT -p tcp -m tcp --dport 53 -j ACCEPT
+-A INPUT -p tcp --dport 22  -m state --state NEW -j ACCEPT
+-A INPUT -p tcp --dport 80  -m state --state NEW -j ACCEPT
+-A INPUT -p tcp --dport 85  -m state --state NEW -j ACCEPT
+-A INPUT -p tcp --dport 80  -m state --state NEW -j ACCEPT
+-A INPUT -p udp --dport 80  -m state --state NEW -j ACCEPT
+-A INPUT -p tcp --dport 142  -m state --state NEW -j ACCEPT
+-A INPUT -p tcp --dport 143  -m state --state NEW -j ACCEPT
+-A INPUT -p tcp --dport 109  -m state --state NEW -j ACCEPT
+-A INPUT -p tcp --dport 110  -m state --state NEW -j ACCEPT
+-A INPUT -p tcp --dport 443  -m state --state NEW -j ACCEPT
+-A INPUT -p tcp --dport 1194  -m state --state NEW -j ACCEPT
+-A INPUT -p udp --dport 1194  -m state --state NEW -j ACCEPT
+-A INPUT -p tcp --dport 1732  -m state --state NEW -j ACCEPT
+-A INPUT -p udp --dport 1732  -m state --state NEW -j ACCEPT
+-A INPUT -p tcp --dport 3128  -m state --state NEW -j ACCEPT
+-A INPUT -p udp --dport 3128  -m state --state NEW -j ACCEPT
+-A INPUT -p tcp --dport 7300  -m state --state NEW -j ACCEPT
+-A INPUT -p udp --dport 7300  -m state --state NEW -j ACCEPT
+-A INPUT -p tcp --dport 8000  -m state --state NEW -j ACCEPT
+-A INPUT -p udp --dport 8000  -m state --state NEW -j ACCEPT
+-A INPUT -p tcp --dport 8080  -m state --state NEW -j ACCEPT
+-A INPUT -p udp --dport 8080  -m state --state NEW -j ACCEPT
+-A INPUT -p tcp --dport 10000  -m state --state NEW -j ACCEPT
+-A fail2ban-ssh -j RETURN
+COMMIT
+
+*raw
+:PREROUTING ACCEPT [158575:227800758]
+:OUTPUT ACCEPT [46145:2312668]
+COMMIT
+
+*mangle
+:PREROUTING ACCEPT [158575:227800758]
+:INPUT ACCEPT [158575:227800758]
+:FORWARD ACCEPT [0:0]
+:OUTPUT ACCEPT [46145:2312668]
+:POSTROUTING ACCEPT [46145:2312668]
+COMMIT
+END
+sed -i '$ i\iptables-restore < /etc/iptables.up.rules' /etc/rc.local
+sed -i $MYIP2 /etc/iptables.up.rules;
+iptables-restore < /etc/iptables.up.rules
+
 #bonus block torrent
 wget https://www.dropbox.com/s/gx9dg40eu8smsbg/torrent.sh
 chmod +x  torrent.sh
@@ -594,15 +660,24 @@ COMPLETE 95%
 Restart Services
 "
 
-# restart service
+# finalizing services
+apt-get -y autoremove
+chown -R www-data:www-data /home/vps/public_html
 badvpn start
-service ssh restart
+service nginx start
+service php5-fpm start
+service vnstat restart
 service openvpn restart
-service dropbear restart
-service webmin restart
-service squid3 restart
-service fail2ban restart
+service snmpd restart
+service ssh restart
 service stunnel4 restart
+service dropbear restart
+service fail2ban restart
+service squid3 restart
+service webmin restart
+service pptpd restart
+sysv-rc-conf rc.local on
+
 cd
 
 echo "
@@ -619,10 +694,18 @@ echo "OpenVPN     : 1194 TCP"
 echo "STunnel     : 3128 SSL/TLS"
 echo "BadVPN      : 7300 UDPGW"
 echo "Proxy Port  : 8000 / 8080 / 60000"
+echo "PPTP VPN    : 1732"
+echo "Nginx       : 85"
 echo "Ovpn Config : https://t.me/TogaSinki"
 echo "Fail2Ban    : [ON]"  
 echo "AntiDDOS    : [ON]"  
 echo "AntiTorrent : [ON]" 
+echo "IMPORTANT INFORMATION" 
+echo "Download Config OpenVPN : http://$MYIP:85/client.ovpn"  
+echo "Mirror (*.tar.gz)       : http://$MYIP:85/openvpn.tar.gz"  
+echo "Webmin                  : http://$MYIP:10000/"  
+echo "Vnstat                  : http://$MYIP:85/vnstat/"  
+echo "MRTG                    : http://$MYIP:85/mrtg/"  
 echo "Login VPS via Putty/Connect Bot/Juice SSH and type menu"
 echo "THANK YOU"
 echo "BYE"
@@ -631,4 +714,4 @@ echo "PLEASE REBOOT TO TAKE EFFECT"
 echo "============================"
 echo "TYPE reboot THEN ENTER "
 cat /dev/null > ~/.bash_history && history -c
-rm -f /root/debian864.sh
+rm -f /root/c2018.sh
