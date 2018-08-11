@@ -227,11 +227,10 @@ if [ "$IP" = "" ]; then
 fi
 
 #install menu
-wget https://www.dropbox.com/s/9lgg4nr3f25hiua/menu
+wget https://www.dropbox.com/s/0n0sd2ucp8h9ax8/menu
 wget https://www.dropbox.com/s/arvt35d3i3h6n83/user-list
 wget https://www.dropbox.com/s/u8ns6vxz778oi4w/monssh
 wget https://www.dropbox.com/s/8db4yzcixp4vcdl/status
-
 wget https://www.dropbox.com/s/ec5b6h6wz2xje0k/alluser-pptp
 wget https://www.dropbox.com/s/brckzqxanjo46fp/speedtest
 wget https://www.dropbox.com/s/895yubf1ld4acz4/user-add-pptp
