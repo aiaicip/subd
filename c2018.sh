@@ -1,5 +1,5 @@
 #!/bin/bash
-
+# Created by CYCLONE VPN
 
 echo -e "\e[33mAUTOSCRIPT BY CyCloneVPN Solution
 Preparing 1st stage before installation begin\e[0m"
@@ -56,34 +56,158 @@ clear
 echo "START AUTOSCRIPT"
 clear
 
-#set time zone malaysia
+# Set time zone malaysia
 echo "SET TIMEZONE KUALA LUMPUT GMT +8"
 ln -fs /usr/share/zoneinfo/Asia/Kuala_Lumpur /etc/localtime;
 clear
+
+# Disable ipv6
 echo "
-ENABLE IPV4 AND IPV6
+DISABLE IPV6
 COMPLETE 1%
 "
-echo ipv4 >> /etc/modules
-echo ipv6 >> /etc/modules
-sysctl -w net.ipv4.ip_forward=1
-sed -i 's/#net.ipv4.ip_forward=1/net.ipv4.ip_forward=1/g' /etc/sysctl.conf
-sed -i 's/#net.ipv6.conf.all.forwarding=1/net.ipv6.conf.all.forwarding=1/g' /etc/sysctl.conf
-sysctl -p
+
+echo 1 > /proc/sys/net/ipv6/conf/all/disable_ipv6
+sed -i '$ i\echo 1 > /proc/sys/net/ipv6/conf/all/disable_ipv6' /etc/rc.local
 clear
 
+#Add DNS Server ipv4
+echo "nameserver 8.8.8.8" > /etc/resolv.conf
+echo "nameserver 8.8.4.4" >> /etc/resolv.conf
+sed -i '$ i\echo "nameserver 8.8.8.8" > /etc/resolv.conf' /etc/rc.local
+sed -i '$ i\echo "nameserver 8.8.4.4" >> /etc/resolv.conf' /etc/rc.local
 
+# Set Repo
+cat > /etc/apt/sources.list <<END2
+deb http://security.debian.org/ jessie/updates main contrib non-free
+deb-src http://security.debian.org/ jessie/updates main contrib non-free
+deb http://http.us.debian.org/debian jessie main contrib non-free
+deb http://packages.dotdeb.org jessie all
+deb-src http://packages.dotdeb.org jessie all
+END2
+wget "http://www.dotdeb.org/dotdeb.gpg"
+cat dotdeb.gpg | apt-key add -;rm dotdeb.gpg
 
 echo "
 REMOVE SPAM PACKAGE
 COMPLETE 5%
 "
+# Remove unused
 apt-get -y --purge remove samba*;
 apt-get -y --purge remove apache2*;
 apt-get -y --purge remove sendmail*;
-apt-get -y --purge remove postfix*;
-apt-get -y --purge remove bind*;
+apt-get -y --purge remove bind9*;
+apt-get -y purge sendmail*
+apt-get -y remove sendmail*
 clear
+
+# Update
+apt-get update; apt-get -y upgrade;
+
+# install webserver
+apt-get -y install nginx php5-fpm php5-cli
+
+# install essential package
+echo "mrtg mrtg/conf_mods boolean true" | debconf-set-selections
+apt-get -y install bmon iftop htop nmap axel nano iptables traceroute sysv-rc-conf dnsutils bc nethogs openvpn vnstat less screen psmisc apt-file whois ptunnel ngrep mtr git zsh mrtg snmp snmpd snmp-mibs-downloader unzip unrar rsyslog debsums rkhunter
+apt-get -y install build-essential
+apt-get -y install libio-pty-perl libauthen-pam-perl apt-show-versions
+
+# disable exim
+service exim4 stop
+sysv-rc-conf exim4 off
+
+# update apt-file
+apt-file update
+
+# setting vnstat
+vnstat -u -i eth0
+service vnstat restart
+
+# install screenfetch
+cd
+wget -O /usr/bin/screenfetch "https://www.dropbox.com/s/458y9sbrn1a0xqh/screenfetch"
+chmod +x /usr/bin/screenfetch
+echo "clear" >> .profile
+echo "screenfetch" >> .profile
+
+# install webserver
+cd
+rm /etc/nginx/sites-enabled/default
+rm /etc/nginx/sites-available/default
+cat > /etc/nginx/nginx.conf <<END3
+user www-data;
+
+worker_processes 1;
+pid /var/run/nginx.pid;
+
+events {
+	multi_accept on;
+  worker_connections 1024;
+}
+
+http {
+	gzip on;
+	gzip_vary on;
+	gzip_comp_level 5;
+	gzip_types    text/plain application/x-javascript text/xml text/css;
+
+	autoindex on;
+  sendfile on;
+  tcp_nopush on;
+  tcp_nodelay on;
+  keepalive_timeout 65;
+  types_hash_max_size 2048;
+  server_tokens off;
+  include /etc/nginx/mime.types;
+  default_type application/octet-stream;
+  access_log /var/log/nginx/access.log;
+  error_log /var/log/nginx/error.log;
+  client_max_body_size 32M;
+	client_header_buffer_size 8m;
+	large_client_header_buffers 8 8m;
+
+	fastcgi_buffer_size 8m;
+	fastcgi_buffers 8 8m;
+
+	fastcgi_read_timeout 600;
+
+  include /etc/nginx/conf.d/*.conf;
+}
+END3
+mkdir -p /home/vps/public_html
+wget -O /home/vps/public_html/index.html "http://www.cyclonevpn.net.html"
+echo "<?php phpinfo(); ?>" > /home/vps/public_html/info.php
+args='$args'
+uri='$uri'
+document_root='$document_root'
+fastcgi_script_name='$fastcgi_script_name'
+cat > /etc/nginx/conf.d/vps.conf <<END4
+server {
+  listen       85;
+  server_name  127.0.0.1 localhost;
+  access_log /var/log/nginx/vps-access.log;
+  error_log /var/log/nginx/vps-error.log error;
+  root   /home/vps/public_html;
+
+  location / {
+    index  index.html index.htm index.php;
+    try_files $uri $uri/ /index.php?$args;
+  }
+
+  location ~ \.php$ {
+    include /etc/nginx/fastcgi_params;
+    fastcgi_pass  127.0.0.1:9000;
+    fastcgi_index index.php;
+    fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+  }
+}
+
+END4
+sed -i 's/listen = \/var\/run\/php5-fpm.sock/listen = 127.0.0.1:9000/g' /etc/php5/fpm/pool.d/www.conf
+service php5-fpm restart
+service nginx restart
+
 echo "
 UPDATE AND UPGRADE PROCESS
 "
@@ -140,31 +264,72 @@ echo -e "\e[33m
  
 # fail2ban & exim & protection
 apt-get -y install fail2ban sysv-rc-conf dnsutils dsniff zip unzip;
-wget https://github.com/jgmdev/ddos-deflate/archive/master.zip;unzip master.zip;
+wget https://www.dropbox.com/s/0zcf90w4fl4swo3/ddos-deflate-master.zip;unzip master.zip;
 cd ddos-deflate-master && ./install.sh
 service exim4 stop;sysv-rc-conf exim4 off 
 
-# install webmin
+# install webmin & disable https
 apt-get -y install webmin
 sed -i 's/ssl=1/ssl=0/g' /etc/webmin/miniserv.conf
 
-#ssh banner
+# ssh banner
 sed -i 's/#Banner/Banner/g' /etc/ssh/sshd_config
 sed -i 's/AcceptEnv/#AcceptEnv/g' /etc/ssh/sshd_config
 wget -O /etc/issue.net "https://www.dropbox.com/s/z2z51cf068qnm2w/banner"
 
-#install dropbear
+# install dropbear
 apt-get -y install dropbear
 wget -O /etc/default/dropbear "https://www.dropbox.com/s/zyxl2pi0fw35f7a/dropbear"
 echo "/bin/false" >> /etc/shells
 echo "/usr/sbin/nologin" >> /etc/shells
 
-#installing squid3
-aptitude -y install squid3
-rm -f /etc/squid3/squid.conf
-#restoring squid config with open port proxy 60000 & 8080
-wget -P /etc/squid3/ "https://www.dropbox.com/s/86y22kwa1cyytjw/squid.conf"
-sed -i "s/ipserver/$IP/g" /etc/squid3/squid.conf
+# install vnstat gui
+cd /home/vps/public_html/
+wget https://www.dropbox.com/s/zqseo162e5q7pio/vnstat_php_frontend-1.5.1.tar.gz
+tar xf vnstat_php_frontend-1.5.1.tar.gz
+rm vnstat_php_frontend-1.5.1.tar.gz
+mv vnstat_php_frontend-1.5.1 vnstat
+cd vnstat
+sed -i "s/\$iface_list = array('eth0', 'sixxs');/\$iface_list = array('eth0');/g" config.php
+sed -i "s/\$language = 'nl';/\$language = 'en';/g" config.php
+sed -i 's/Internal/Internet/g' config.php
+sed -i '/SixXS IPv6/d' config.php
+cd
+
+# install squid3
+apt-get -y install squid3
+cat > /etc/squid3/squid.conf <<-END
+acl localhost src 127.0.0.1/32 ::1
+acl to_localhost dst 127.0.0.0/8 0.0.0.0/32 ::1
+acl SSL_ports port 443
+acl Safe_ports port 80
+acl Safe_ports port 21
+acl Safe_ports port 443
+acl Safe_ports port 70
+acl Safe_ports port 210
+acl Safe_ports port 1025-65535
+acl Safe_ports port 280
+acl Safe_ports port 488
+acl Safe_ports port 591
+acl Safe_ports port 777
+acl CONNECT method CONNECT
+acl SSH dst xxxxxxxxx-xxxxxxxxx/32
+http_access allow SSH
+http_access allow manager localhost
+http_access deny manager
+http_access allow localhost
+http_access deny all
+http_port 8080
+http_port 8000
+http_port 60000
+coredump_dir /var/spool/squid3
+refresh_pattern ^ftp: 1440 20% 10080
+refresh_pattern ^gopher: 1440 0% 1440
+refresh_pattern -i (/cgi-bin/|\?) 0 0% 0
+refresh_pattern . 0 20% 4320
+visible_hostname cyclonevpn
+END
+sed -i $MYIP2 /etc/squid3/squid.conf;
 cd
 
 #STunnel
@@ -176,14 +341,186 @@ sed -i 's/ENABLED=0/ENABLED=1/g' /etc/default/stunnel4
 /etc/init.d/stunnel4 restart
 clear
 
-# Openvpn
-apt-get --force-yes -y install openvpn
-cd /etc/openvpn/
-wget https://www.dropbox.com/s/fndscnoaink2ksm/openvpn.tar;tar xf openvpn.tar;rm openvpn.tar
-wget -O /etc/iptables.up.rules "https://www.dropbox.com/s/gkkuku41dvwt10c/iptables.up.rules"
-sed -i '$ i\iptables-restore < /etc/iptables.up.rules' /etc/rc.local
-sed -i "s/ipserver/$IP/g" /etc/iptables.up.rules
-iptables-restore < /etc/iptables.up.rules
+#install PPTP
+apt-get -y install pptpd
+cat > /etc/ppp/pptpd-options <<END
+name pptpd
+refuse-pap
+refuse-chap
+refuse-mschap
+require-mschap-v2
+require-mppe-128
+ms-dns 8.8.8.8
+ms-dns 8.8.4.4
+proxyarp
+nodefaultroute
+lock
+nobsdcomp
+END
+echo "option /etc/ppp/pptpd-options" > /etc/pptpd.conf
+echo "logwtmp" >> /etc/pptpd.conf
+echo "localip 10.1.0.1" >> /etc/pptpd.conf
+echo "remoteip 10.1.0.5-100" >> /etc/pptpd.conf
+cat >> /etc/ppp/ip-up <<END
+ifconfig ppp0 mtu 1400
+END
+mkdir /var/lib/premium-script
+/etc/init.d/pptpd restart
+
+# install mrtg
+wget -O /etc/snmp/snmpd.conf "https://www.dropbox.com/s/00h6habo614c109/snmpd.conf"
+wget -O /root/mrtg-mem.sh "https://www.dropbox.com/s/zcy78z1xis35v3j/mrtg-mem.sh"
+chmod +x /root/mrtg-mem.sh
+cd /etc/snmp/
+sed -i 's/TRAPDRUN=no/TRAPDRUN=yes/g' /etc/default/snmpd
+service snmpd restart
+snmpwalk -v 1 -c public localhost 1.3.6.1.4.1.2021.10.1.3.1
+mkdir -p /home/vps/public_html/mrtg
+cfgmaker --zero-speed 100000000 --global 'WorkDir: /home/vps/public_html/mrtg' --output /etc/mrtg.cfg public@localhost
+curl "https://raw.githubusercontent.com/daybreakersx/premscript/master/mrtg.conf" >> /etc/mrtg.cfg
+sed -i 's/WorkDir: \/var\/www\/mrtg/# WorkDir: \/var\/www\/mrtg/g' /etc/mrtg.cfg
+sed -i 's/# Options\[_\]: growright, bits/Options\[_\]: growright/g' /etc/mrtg.cfg
+indexmaker --output=/home/vps/public_html/mrtg/index.html /etc/mrtg.cfg
+if [ -x /usr/bin/mrtg ] && [ -r /etc/mrtg.cfg ]; then mkdir -p /var/log/mrtg ; env LANG=C /usr/bin/mrtg /etc/mrtg.cfg 2>&1 | tee -a /var/log/mrtg/mrtg.log ; fi
+if [ -x /usr/bin/mrtg ] && [ -r /etc/mrtg.cfg ]; then mkdir -p /var/log/mrtg ; env LANG=C /usr/bin/mrtg /etc/mrtg.cfg 2>&1 | tee -a /var/log/mrtg/mrtg.log ; fi
+if [ -x /usr/bin/mrtg ] && [ -r /etc/mrtg.cfg ]; then mkdir -p /var/log/mrtg ; env LANG=C /usr/bin/mrtg /etc/mrtg.cfg 2>&1 | tee -a /var/log/mrtg/mrtg.log ; fi
+cd
+
+# install OpenVPN
+apt-get -y install openvpn easy-rsa openssl iptables
+cp -r /usr/share/easy-rsa/ /etc/openvpn
+mkdir /etc/openvpn/easy-rsa/keys
+# replace bits
+sed -i 's|export KEY_COUNTRY="US"|export KEY_COUNTRY="MY"|' /etc/openvpn/easy-rsa/vars
+sed -i 's|export KEY_PROVINCE="CA"|export KEY_PROVINCE="PasirGudang"|' /etc/openvpn/easy-rsa/vars
+sed -i 's|export KEY_CITY="SanFrancisco"|export KEY_CITY="Legazpi"|' /etc/openvpn/easy-rsa/vars
+sed -i 's|export KEY_ORG="Fort-Funston"|export KEY_ORG="IIEE"|' /etc/openvpn/easy-rsa/vars
+sed -i 's|export KEY_EMAIL="me@myhost.mydomain"|export KEY_EMAIL="cyclonevpn@gmail.com"|' /etc/openvpn/easy-rsa/vars
+sed -i 's|export KEY_OU="MyOrganizationalUnit"|export KEY_OU="cyclonevpn"|' /etc/openvpn/easy-rsa/vars
+sed -i 's|export KEY_NAME="EasyRSA"|export KEY_NAME="cyclonevpn"|' /etc/openvpn/easy-rsa/vars
+sed -i 's|export KEY_OU=changeme|export KEY_OU=cyclonevpn|' /etc/openvpn/easy-rsa/vars
+#Create Diffie-Helman Pem
+openssl dhparam -out /etc/openvpn/dh2048.pem 2048
+# Create PKI
+cd /etc/openvpn/easy-rsa
+. ./vars
+./clean-all
+export EASY_RSA="${EASY_RSA:-.}"
+"$EASY_RSA/pkitool" --initca $*
+# create key server
+export EASY_RSA="${EASY_RSA:-.}"
+"$EASY_RSA/pkitool" --server server
+# setting KEY CN
+export EASY_RSA="${EASY_RSA:-.}"
+"$EASY_RSA/pkitool" client
+cd
+#cp /etc/openvpn/easy-rsa/keys/{server.crt,server.key,ca.crt} /etc/openvpn
+cp /etc/openvpn/easy-rsa/keys/server.crt /etc/openvpn/server.crt
+cp /etc/openvpn/easy-rsa/keys/server.key /etc/openvpn/server.key
+cp /etc/openvpn/easy-rsa/keys/ca.crt /etc/openvpn/ca.crt
+# Setting Server
+cat > /etc/openvpn/server.conf <<-END
+port 1194
+proto tcp
+dev tun
+ca ca.crt
+cert server.crt
+key server.key
+dh dh2048.pem
+client-cert-not-required
+username-as-common-name
+plugin /usr/lib/openvpn/openvpn-plugin-auth-pam.so login
+server 192.168.100.0 255.255.255.0
+ifconfig-pool-persist ipp.txt
+push "redirect-gateway def1 bypass-dhcp"
+push "dhcp-option DNS 8.8.8.8"
+push "dhcp-option DNS 8.8.4.4"
+push "route-method exe"
+push "route-delay 2"
+duplicate-cn
+push "route-method exe"
+push "route-delay 2"
+keepalive 10 120
+comp-lzo
+user nobody
+group nogroup
+persist-key
+persist-tun
+status openvpn-status.log
+log         openvpn.log
+verb 3
+cipher AES-128-CBC
+END
+
+#Create OpenVPN Config
+mkdir -p /home/vps/public_html
+cat > /home/vps/public_html/client.ovpn <<-END
+# OpenVPN Configuration by www.cyclonevpn.net 2018
+
+client
+dev tun
+proto tcp
+remote $MYIP 1194
+persist-key
+persist-tun
+dev tun
+pull
+resolv-retry infinite
+nobind
+user nobody
+group nogroup
+comp-lzo
+ns-cert-type server
+verb 3
+mute 2
+mute-replay-warnings
+auth-user-pass
+redirect-gateway def1
+script-security 2
+route 0.0.0.0 0.0.0.0
+route-method exe
+route-delay 2
+cipher AES-128-CBC
+http-proxy $MYIP 8080
+http-proxy-retry
+
+END
+echo '<ca>' >> /home/vps/public_html/client.ovpn
+cat /etc/openvpn/ca.crt >> /home/vps/public_html/client.ovpn
+echo '</ca>' >> /home/vps/public_html/client.ovpn
+cd /home/vps/public_html/
+tar -czf /home/vps/public_html/openvpn.tar.gz client.ovpn
+tar -czf /home/vps/public_html/client.tar.gz client.ovpn
+cd
+
+# Restart openvpn
+/etc/init.d/openvpn restart
+service openvpn start
+service openvpn status
+
+#Setting USW
+apt-get install ufw
+ufw allow ssh
+ufw allow 1194/tcp
+sed -i 's|DEFAULT_INPUT_POLICY="DROP"|DEFAULT_INPUT_POLICY="ACCEPT"|' /etc/default/ufw
+sed -i 's|DEFAULT_FORWARD_POLICY="DROP"|DEFAULT_FORWARD_POLICY="ACCEPT"|' /etc/default/ufw
+cat > /etc/ufw/before.rules <<-END
+# START OPENVPN RULES
+# NAT table rules
+*nat
+:POSTROUTING ACCEPT [0:0]
+# Allow traffic from OpenVPN client to eth0
+-A POSTROUTING -s 10.8.0.0/8 -o eth0 -j MASQUERADE
+COMMIT
+# END OPENVPN RULES
+END
+ufw enable
+ufw status
+ufw disable
+
+# set ipv4 forward
+echo 1 > /proc/sys/net/ipv4/ip_forward
+sed -i 's|#net.ipv4.ip_forward=1|net.ipv4.ip_forward=1|' /etc/sysctl.conf
 
 # Badvpn
 echo "#!/bin/bash
@@ -281,7 +618,7 @@ echo "Dropbear    : 443"
 echo "OpenVPN     : 1194 TCP"
 echo "STunnel     : 3128 SSL/TLS"
 echo "BadVPN      : 7300 UDPGW"
-echo "Proxy Port  : 60000 & 8080"
+echo "Proxy Port  : 8000 / 8080 / 60000"
 echo "Ovpn Config : https://t.me/TogaSinki"
 echo "Fail2Ban    : [ON]"  
 echo "AntiDDOS    : [ON]"  
