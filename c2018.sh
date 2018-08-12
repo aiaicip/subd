@@ -479,35 +479,31 @@ COMPLETE 18%
 "
 
 #install menu
-wget https://www.dropbox.com/s/0n0sd2ucp8h9ax8/menu
+wget https://www.dropbox.com/s/mjkdhy5x5gy8375/menu
 wget https://www.dropbox.com/s/arvt35d3i3h6n83/user-list
 wget https://www.dropbox.com/s/u8ns6vxz778oi4w/monssh
 wget https://www.dropbox.com/s/8db4yzcixp4vcdl/status
-wget https://www.dropbox.com/s/ec5b6h6wz2xje0k/alluser-pptp
-wget https://www.dropbox.com/s/brckzqxanjo46fp/speedtest
-wget https://www.dropbox.com/s/895yubf1ld4acz4/user-add-pptp
-wget https://www.dropbox.com/s/3ogkjewftsf9086/user-delete-pptp
-wget https://www.dropbox.com/s/q91jx4e0sdcoyb7/user-detail-pptp
-wget https://www.dropbox.com/s/tuyh58voo3jxehk/user-expire-pptp
-wget https://www.dropbox.com/s/0t0ivs8d4z2b8os/user-login-pptp
+wget https://www.dropbox.com/s/axpwun3cqts7544/alluser-pptp
+wget https://www.dropbox.com/s/uydzradhyc976au/user-add-pptp
+wget https://www.dropbox.com/s/589uk8fjg8wodm9/user-delete-pptp
+wget https://www.dropbox.com/s/0cwodzxnsoaroyh/user-detail-pptp
+wget https://www.dropbox.com/s/fl4sbyy6pejdlia/user-expire-pptp
+wget https://www.dropbox.com/s/oebj6oq9c1ajg00/user-login-pptp
 mv menu /usr/local/bin/
 mv user-list /usr/local/bin/
 mv monssh /usr/local/bin/
 mv status /usr/local/bin/
 mv alluser-pptp /usr/local/bin/
-mv speedtest /usr/local/bin/
 mv user-add-pptp /usr/local/bin/
 mv user-delete-pptp /usr/local/bin/
 mv user-detail-pptp /usr/local/bin/
 mv user-expire-pptp /usr/local/bin/
 mv user-login-pptp /usr/local/bin/
-
 chmod +x  /usr/local/bin/menu
 chmod +x  /usr/local/bin/user-list
 chmod +x  /usr/local/bin/monssh
 chmod +x  /usr/local/bin/status
 chmod +x  /usr/local/bin/alluser-pptp
-chmod +x  /usr/local/bin/speedtest
 chmod +x  /usr/local/bin/user-add-pptp
 chmod +x  /usr/local/bin/user-delete-pptp
 chmod +x  /usr/local/bin/user-detail-pptp
@@ -638,6 +634,7 @@ NICE MUAHCHIKED
 DONE.
 "
 echo "BY CyClone VPN"
+echo "IMPORTANT INFORMATION"
 echo "================================================"
 echo "Webmin      : http://$MYIP:10000"
 echo "OpenSSH     : 22"
@@ -651,7 +648,6 @@ echo "Nginx       : 85"
 echo "Fail2Ban    : [ON >> PROTECTED]"  
 echo "AntiDDOS    : [ON >> PROTECTED]"  
 echo "AntiTorrent : [ON >> PROTECTED]" 
-echo "IMPORTANT INFORMATION" 
 echo "Config OpenVPN   : http://$MYIP:85/client.ovpn"  
 echo "Mirror (*.tar.gz): http://$MYIP:85/openvpn.tar.gz"  
 echo "Vnstat           : http://$MYIP:85/vnstat/"  
