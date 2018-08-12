@@ -432,7 +432,7 @@ service openvpn status
 
 #Setting USW
 apt-get install ufw
-ufw allow ssh -y
+ufw allow ssh 
 ufw allow 1194/tcp
 sed -i 's|DEFAULT_INPUT_POLICY="DROP"|DEFAULT_INPUT_POLICY="ACCEPT"|' /etc/default/ufw
 sed -i 's|DEFAULT_FORWARD_POLICY="DROP"|DEFAULT_FORWARD_POLICY="ACCEPT"|' /etc/default/ufw
@@ -446,7 +446,7 @@ cat > /etc/ufw/before.rules <<-END
 COMMIT
 # END OPENVPN RULES
 END
-ufw enable
+ufw --force enable 
 ufw status
 ufw disable
 
@@ -645,9 +645,9 @@ echo "BadVPN      : 7300 UDPGW"
 echo "Proxy Port  : 8000 / 8080 / 60000"
 echo "PPTP VPN    : 1732"
 echo "Nginx       : 85"
-echo -e "\e[1;32;44mFail2Ban    : [ON >> PROTECTED]\e[0m"  
-echo -e "\e[1;32;44mAntiDDOS    : [ON >> PROTECTED]\e[0m"  
-echo -e "\e[1;32;44mAntiTorrent : [ON >> PROTECTED]\e[0m"
+echo -e "\e[1;44;32mFail2Ban    : [ON >> PROTECTED]\e[0m"  
+echo -e "\e[1;44;32mAntiDDOS    : [ON >> PROTECTED]\e[0m"  
+echo -e "\e[1;44;32mAntiTorrent : [ON >> PROTECTED]\e[0m"
 echo "Config OpenVPN   : http://$MYIP:85/client.ovpn"  
 echo "Mirror (*.tar.gz): http://$MYIP:85/openvpn.tar.gz"  
 echo "Vnstat           : http://$MYIP:85/vnstat/"  
