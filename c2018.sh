@@ -7,15 +7,24 @@ echo ""
 echo ""
 echo ""
 
-apt-get update;
-apt-get -y upgrade;
-apt-get -y install wget curl;
-
+#Requirement
+if [ ! -e /usr/bin/curl ]; then
+    apt-get -y update && apt-get -y upgrade
+	apt-get -y install curl
+fi
+# initializing var
+export DEBIAN_FRONTEND=noninteractive
+OS=`uname -m`;
+MYIP=$(curl -4 icanhazip.com)
+if [ $MYIP = "" ]; then
+   MYIP=`ifconfig | grep 'inet addr:' | grep -v inet6 | grep -vE '127\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | cut -d: -f2 | awk '{ print $1}' | head -1`;
+fi
+MYIP2="s/xxxxxxxxx/$MYIP/g";
 
 myip=`ifconfig | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*\.){3}[0-9]*' | grep -v '127.0.0' | head -n1`;
-myint=`ifconfig | grep -B1 "inet addr:$myip" | head -n1 | awk '{print $1}'`;
+myint=`ifconfig | grep -B1 "inet addr:$MYIP" | head -n1 | awk '{print $1}'`;
 curl -s -o ip.txt https://raw.githubusercontent.com/aiaicip/thv/master/ip.txt
-find=`grep $myip ip.txt`
+find=`grep $MYIP ip.txt`
 if ["$find" = ""]
 then
 clear
@@ -56,26 +65,25 @@ clear
 echo "START AUTOSCRIPT"
 clear
 
-# Set time zone malaysia
-echo "SET TIMEZONE KUALA LUMPUT GMT +8"
-ln -fs /usr/share/zoneinfo/Asia/Kuala_Lumpur /etc/localtime;
-clear
+# go to root
+cd
 
-# Disable ipv6
-echo "
-DISABLE IPV6
-COMPLETE 1%
-"
-
+# disable ipv6
 echo 1 > /proc/sys/net/ipv6/conf/all/disable_ipv6
 sed -i '$ i\echo 1 > /proc/sys/net/ipv6/conf/all/disable_ipv6' /etc/rc.local
-clear
 
 #Add DNS Server ipv4
 echo "nameserver 8.8.8.8" > /etc/resolv.conf
 echo "nameserver 8.8.4.4" >> /etc/resolv.conf
 sed -i '$ i\echo "nameserver 8.8.8.8" > /etc/resolv.conf' /etc/rc.local
 sed -i '$ i\echo "nameserver 8.8.4.4" >> /etc/resolv.conf' /etc/rc.local
+
+# install wget and curl
+apt-get update;apt-get -y install wget curl;
+
+# Set time zone malaysia
+echo "SET TIMEZONE KUALA LUMPUT GMT +8"
+ln -fs /usr/share/zoneinfo/Asia/Kuala_Lumpur /etc/localtime;
 
 # Set Repo
 cat > /etc/apt/sources.list <<END2
@@ -123,13 +131,6 @@ apt-file update
 # setting vnstat
 vnstat -u -i eth0
 service vnstat restart
-
-# install screenfetch
-cd
-wget -O /usr/bin/screenfetch "https://www.dropbox.com/s/458y9sbrn1a0xqh/screenfetch"
-chmod +x /usr/bin/screenfetch
-echo "clear" >> .profile
-echo "screenfetch" >> .profile
 
 # install webserver
 cd
@@ -208,93 +209,6 @@ sed -i 's/listen = \/var\/run\/php5-fpm.sock/listen = 127.0.0.1:9000/g' /etc/php
 service php5-fpm restart
 service nginx restart
 
-echo "
-UPDATE AND UPGRADE PROCESS
-"
-sh -c 'echo "deb http://download.webmin.com/download/repository sarge contrib" > /etc/apt/sources.list.d/webmin.list'
-wget -qO - http://www.webmin.com/jcameron-key.asc | apt-key add -
-apt-get -y autoremove
-
-echo "
-INSTALL COMMANDS
-COMPLETE 18%
-"
-#get ip address
-apt-get -y install aptitude curl;
-
-if [ "$IP" = "" ]; then
-        IP=$(curl -s ifconfig.co)
-fi
-
-#install menu
-wget https://www.dropbox.com/s/0n0sd2ucp8h9ax8/menu
-wget https://www.dropbox.com/s/arvt35d3i3h6n83/user-list
-wget https://www.dropbox.com/s/u8ns6vxz778oi4w/monssh
-wget https://www.dropbox.com/s/8db4yzcixp4vcdl/status
-wget https://www.dropbox.com/s/ec5b6h6wz2xje0k/alluser-pptp
-wget https://www.dropbox.com/s/brckzqxanjo46fp/speedtest
-wget https://www.dropbox.com/s/895yubf1ld4acz4/user-add-pptp
-wget https://www.dropbox.com/s/3ogkjewftsf9086/user-delete-pptp
-wget https://www.dropbox.com/s/q91jx4e0sdcoyb7/user-detail-pptp
-wget https://www.dropbox.com/s/tuyh58voo3jxehk/user-expire-pptp
-wget https://www.dropbox.com/s/0t0ivs8d4z2b8os/user-login-pptp
-mv menu /usr/local/bin/
-mv user-list /usr/local/bin/
-mv monssh /usr/local/bin/
-mv status /usr/local/bin/
-mv alluser-pptp /usr/local/bin/
-mv speedtest /usr/local/bin/
-mv user-add-pptp /usr/local/bin/
-mv user-delete-pptp /usr/local/bin/
-mv user-detail-pptp /usr/local/bin/
-mv user-expire-pptp /usr/local/bin/
-mv user-login-pptp /usr/local/bin/
-
-chmod +x  /usr/local/bin/menu
-chmod +x  /usr/local/bin/user-list
-chmod +x  /usr/local/bin/monssh
-chmod +x  /usr/local/bin/status
-chmod +x  /usr/local/bin/alluser-pptp
-chmod +x  /usr/local/bin/speedtest
-chmod +x  /usr/local/bin/user-add-pptp
-chmod +x  /usr/local/bin/user-delete-pptp
-chmod +x  /usr/local/bin/user-detail-pptp
-chmod +x  /usr/local/bin/user-expire-pptp
-chmod +x  /usr/local/bin/user-login-pptp
-
-cd
-
-#motd
-echo -e "\e[33m
-  ____       ____ _                __     ______  _   _ 
- / ____   _ / ___| | ___  _ __   __\ \   / |  _ \| \ | |
-| |  | | | | |   | |/ _ \| '_ \ / _ \ \ / /| |_) |  \| |
-| |__| |_| | |___| | (_) | | | |  __/\ V / |  __/| |\  |
- \____\__, |\____|_|\___/|_| |_|\___| \_/  |_|   |_| \_|
-      |___/                                             
-   ================================================
-   #                                              #
-   #      WELCOME TO CyCloneVPN VPS SYSTEM !      #
-   #      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~       #
-   #            Telegram : @TogaSinki             #
-   #   Copyright © CyCloneVPN Premium VPN™ 2017   #
-   #                  by abangG                   #
-   #     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~      #
-   #     PLEASE TYPE 'menu' FOR EACH MISSION      #
-   #                                              #
-   ================================================
-\e[0m" > /etc/motd
- 
-# fail2ban & exim & protection
-apt-get -y install fail2ban sysv-rc-conf dnsutils dsniff zip unzip;
-wget https://www.dropbox.com/s/0zcf90w4fl4swo3/ddos-deflate-master.zip;unzip master.zip;
-cd ddos-deflate-master && ./install.sh
-service exim4 stop;sysv-rc-conf exim4 off 
-
-# install webmin & disable https
-apt-get -y install webmin
-sed -i 's/ssl=1/ssl=0/g' /etc/webmin/miniserv.conf
-
 # ssh banner
 sed -i 's/#Banner/Banner/g' /etc/ssh/sshd_config
 sed -i 's/AcceptEnv/#AcceptEnv/g' /etc/ssh/sshd_config
@@ -318,6 +232,10 @@ sed -i "s/\$language = 'nl';/\$language = 'en';/g" config.php
 sed -i 's/Internal/Internet/g' config.php
 sed -i '/SixXS IPv6/d' config.php
 cd
+
+# install fail2ban
+apt-get -y install fail2ban
+service fail2ban restart
 
 # install squid3
 apt-get -y install squid3
@@ -353,16 +271,26 @@ refresh_pattern . 0 20% 4320
 visible_hostname cyclonevpn
 END
 sed -i $MYIP2 /etc/squid3/squid.conf;
-cd
+service squid3 restart
 
-#STunnel
-apt-get install stunnel4 -y
-wget -P /etc/stunnel/ "https://www.dropbox.com/s/qy017wsbexwg1gm/stunnel.conf"
-openssl genrsa -out key.pem 2048
-wget -P /etc/stunnel/ "https://www.dropbox.com/s/mssa7cm0y5u6xqv/stunnel.pem"
+# install stunnel4
+apt-get -y install stunnel4
+wget -O /etc/stunnel/stunnel.pem "https://www.dropbox.com/s/7k44axplahg1wcx/stunnel.pem"
+wget -O /etc/stunnel/stunnel.conf "https://www.dropbox.com/s/q4bbapugxptxotv/stunnel.conf"
+sed -i $MYIP2 /etc/stunnel/stunnel.conf
 sed -i 's/ENABLED=0/ENABLED=1/g' /etc/default/stunnel4
-/etc/init.d/stunnel4 restart
-clear
+service stunnel4 restart
+
+echo "
+UPDATE AND UPGRADE PROCESS
+"
+
+# install webmin & disable https
+sh -c 'echo "deb http://download.webmin.com/download/repository sarge contrib" > /etc/apt/sources.list.d/webmin.list'
+wget -qO - http://www.webmin.com/jcameron-key.asc | apt-key add -
+apt-get -y autoremove
+apt-get -y install webmin
+sed -i 's/ssl=1/ssl=0/g' /etc/webmin/miniserv.conf
 
 #install PPTP
 apt-get -y install pptpd
@@ -389,25 +317,6 @@ ifconfig ppp0 mtu 1400
 END
 mkdir /var/lib/premium-script
 /etc/init.d/pptpd restart
-
-# install mrtg
-wget -O /etc/snmp/snmpd.conf "https://www.dropbox.com/s/00h6habo614c109/snmpd.conf"
-wget -O /root/mrtg-mem.sh "https://www.dropbox.com/s/zcy78z1xis35v3j/mrtg-mem.sh"
-chmod +x /root/mrtg-mem.sh
-cd /etc/snmp/
-sed -i 's/TRAPDRUN=no/TRAPDRUN=yes/g' /etc/default/snmpd
-service snmpd restart
-snmpwalk -v 1 -c public localhost 1.3.6.1.4.1.2021.10.1.3.1
-mkdir -p /home/vps/public_html/mrtg
-cfgmaker --zero-speed 100000000 --global 'WorkDir: /home/vps/public_html/mrtg' --output /etc/mrtg.cfg public@localhost
-curl "https://raw.githubusercontent.com/daybreakersx/premscript/master/mrtg.conf" >> /etc/mrtg.cfg
-sed -i 's/WorkDir: \/var\/www\/mrtg/# WorkDir: \/var\/www\/mrtg/g' /etc/mrtg.cfg
-sed -i 's/# Options\[_\]: growright, bits/Options\[_\]: growright/g' /etc/mrtg.cfg
-indexmaker --output=/home/vps/public_html/mrtg/index.html /etc/mrtg.cfg
-if [ -x /usr/bin/mrtg ] && [ -r /etc/mrtg.cfg ]; then mkdir -p /var/log/mrtg ; env LANG=C /usr/bin/mrtg /etc/mrtg.cfg 2>&1 | tee -a /var/log/mrtg/mrtg.log ; fi
-if [ -x /usr/bin/mrtg ] && [ -r /etc/mrtg.cfg ]; then mkdir -p /var/log/mrtg ; env LANG=C /usr/bin/mrtg /etc/mrtg.cfg 2>&1 | tee -a /var/log/mrtg/mrtg.log ; fi
-if [ -x /usr/bin/mrtg ] && [ -r /etc/mrtg.cfg ]; then mkdir -p /var/log/mrtg ; env LANG=C /usr/bin/mrtg /etc/mrtg.cfg 2>&1 | tee -a /var/log/mrtg/mrtg.log ; fi
-cd
 
 # install OpenVPN
 apt-get -y install openvpn easy-rsa openssl iptables
@@ -545,62 +454,88 @@ ufw disable
 echo 1 > /proc/sys/net/ipv4/ip_forward
 sed -i 's|#net.ipv4.ip_forward=1|net.ipv4.ip_forward=1|' /etc/sysctl.conf
 
-# Badvpn
-echo "#!/bin/bash
-if [ "'$1'" == start ]
-then
-badvpn-udpgw --listen-addr 127.0.0.1:7300 --max-clients 1000 --max-connections-for-client 10 > /dev/null &
-echo 'Badvpn Run On Port 7300'
+# install badvpn
+wget -O /usr/bin/badvpn-udpgw "https://raw.githubusercontent.com/daybreakersx/premscript/master/badvpn-udpgw"
+if [ "$OS" == "x86_64" ]; then
+  wget -O /usr/bin/badvpn-udpgw "https://raw.githubusercontent.com/daybreakersx/premscript/master/badvpn-udpgw64"
 fi
-if [ "'$1'" == stop ]
-then
-badvpnpid="'$(ps x |grep badvpn |grep -v grep |awk '"{'"'print $1'"'})
-kill -9 "'"$badvpnpid" >/dev/null 2>/dev/null
-kill $badvpnpid > /dev/null 2> /dev/null
-kill "$badvpnpid" > /dev/null 2>/dev/null''
-kill $(ps x |grep badvpn |grep -v grep |awk '"{'"'print $1'"'})
-killall badvpn-udpgw
-fi" > /bin/badvpn
-chmod +x /bin/badvpn
-if [ -f /usr/local/bin/badvpn-udpgw ]; then
-echo -e "\033[1;32mBadvpn Installing\033[0m"
-exit
-else
-clear
-fi
-if [ -f /usr/bin/badvpn-udpgw ]; then
-echo -e "\033[1;32mBadvpn Installing\033[0m"
-exit
-else
-clear
-fi
-echo -e "\033[1;31m           Installing Badvpn\n\033[1;37mInstalling gcc Cmake make g++ openssl etc...\033[0m"
-apt-get update >/dev/null 2>/dev/null
-apt-get install -y gcc >/dev/null 2>/dev/null
-apt-get install -y make >/dev/null 2>/dev/null
-apt-get install -y g++ >/dev/null 2>/dev/null
-apt-get install -y openssl >/dev/null 2>/dev/null
-apt-get install -y build-essential >/dev/null 2>/dev/null
-apt-get install -y cmake >/dev/null 2>/dev/null
-echo -e "\033[1;37mDownloading File Badvpn"; cd
-wget https://www.dropbox.com/s/jat1ttcnqekh6dt/badvpn-1.999.128.tar.bz2 -o /dev/null
-echo -e "Extract Badvpn"
-tar -xf badvpn-1.999.128.tar.bz2
-echo -e "Setup configuration"
-mkdir /etc/badvpn-install
-cd /etc/badvpn-install
-cmake ~/badvpn-1.999.128 -DBUILD_NOTHING_BY_DEFAULT=1 -DBUILD_UDPGW=1 >/dev/null 2>/dev/null
-echo -e "Compile Badvpn\033[0m"
-make install
-sed -i '$ i\badvpn-udpgw --listen-addr 127.0.0.1:7300 > /dev/nul &' /etc/rc.local
-clear
-echo -e "\033[1;32m             Installation Complete\033[0m" 
-echo -e "\033[1;37mCommand:\n\033[1;31mbadvpn start\033[1;37m Run Badvpn Service"
-echo -e "\033[1;31mbadvpn stop \033[1;37m Stop Badvpn Service\033[0m"
-rm -rf /etc/badvpn-install
-cd ; rm -rf badvpn.sh badvpn-1.999.128/ badvpn-1.999.128.tar.bz2 >/dev/null 2>/dev/null
+sed -i '$ i\screen -AmdS badvpn badvpn-udpgw --listen-addr 127.0.0.1:7300' /etc/rc.local
+chmod +x /usr/bin/badvpn-udpgw
+screen -AmdS badvpn badvpn-udpgw --listen-addr 127.0.0.1:730
+
+# install ddos deflate
+cd
+apt-get -y install dnsutils dsniff
+wget https://github.com/jgmdev/ddos-deflate/archive/master.zip
+unzip master.zip
+cd ddos-deflate-master
+./install.sh
+rm -rf /root/master.zip
 
 
+echo "
+INSTALL COMMANDS
+COMPLETE 18%
+"
+
+#install menu
+wget https://www.dropbox.com/s/0n0sd2ucp8h9ax8/menu
+wget https://www.dropbox.com/s/arvt35d3i3h6n83/user-list
+wget https://www.dropbox.com/s/u8ns6vxz778oi4w/monssh
+wget https://www.dropbox.com/s/8db4yzcixp4vcdl/status
+wget https://www.dropbox.com/s/ec5b6h6wz2xje0k/alluser-pptp
+wget https://www.dropbox.com/s/brckzqxanjo46fp/speedtest
+wget https://www.dropbox.com/s/895yubf1ld4acz4/user-add-pptp
+wget https://www.dropbox.com/s/3ogkjewftsf9086/user-delete-pptp
+wget https://www.dropbox.com/s/q91jx4e0sdcoyb7/user-detail-pptp
+wget https://www.dropbox.com/s/tuyh58voo3jxehk/user-expire-pptp
+wget https://www.dropbox.com/s/0t0ivs8d4z2b8os/user-login-pptp
+mv menu /usr/local/bin/
+mv user-list /usr/local/bin/
+mv monssh /usr/local/bin/
+mv status /usr/local/bin/
+mv alluser-pptp /usr/local/bin/
+mv speedtest /usr/local/bin/
+mv user-add-pptp /usr/local/bin/
+mv user-delete-pptp /usr/local/bin/
+mv user-detail-pptp /usr/local/bin/
+mv user-expire-pptp /usr/local/bin/
+mv user-login-pptp /usr/local/bin/
+
+chmod +x  /usr/local/bin/menu
+chmod +x  /usr/local/bin/user-list
+chmod +x  /usr/local/bin/monssh
+chmod +x  /usr/local/bin/status
+chmod +x  /usr/local/bin/alluser-pptp
+chmod +x  /usr/local/bin/speedtest
+chmod +x  /usr/local/bin/user-add-pptp
+chmod +x  /usr/local/bin/user-delete-pptp
+chmod +x  /usr/local/bin/user-detail-pptp
+chmod +x  /usr/local/bin/user-expire-pptp
+chmod +x  /usr/local/bin/user-login-pptp
+
+
+#motd
+echo -e "\e[33m
+  ____       ____ _                __     ______  _   _ 
+ / ____   _ / ___| | ___  _ __   __\ \   / |  _ \| \ | |
+| |  | | | | |   | |/ _ \| '_ \ / _ \ \ / /| |_) |  \| |
+| |__| |_| | |___| | (_) | | | |  __/\ V / |  __/| |\  |
+ \____\__, |\____|_|\___/|_| |_|\___| \_/  |_|   |_| \_|
+      |___/                                             
+   ================================================
+   #                                              #
+   #      WELCOME TO CyCloneVPN VPS SYSTEM !      #
+   #      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~       #
+   #            Telegram : @TogaSinki             #
+   #   Copyright © CyCloneVPN Premium VPN™ 2017   #
+   #                  by abangG                   #
+   #     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~      #
+   #     PLEASE TYPE 'menu' FOR EACH MISSION      #
+   #                                              #
+   ================================================
+\e[0m" > /etc/motd
+ 
 #Setting IPtables
 cat > /etc/iptables.up.rules <<-END
 *nat
@@ -665,11 +600,6 @@ END
 sed -i '$ i\iptables-restore < /etc/iptables.up.rules' /etc/rc.local
 sed -i $MYIP2 /etc/iptables.up.rules;
 iptables-restore < /etc/iptables.up.rules
-
-#bonus block torrent
-wget https://www.dropbox.com/s/gx9dg40eu8smsbg/torrent.sh
-chmod +x  torrent.sh
-./torrent.sh
 
 #swap ram
 wget https://www.dropbox.com/s/0jue4hmhxti08ik/swap-ram.sh
