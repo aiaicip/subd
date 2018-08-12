@@ -461,7 +461,7 @@ if [ "$OS" == "x86_64" ]; then
 fi
 sed -i '$ i\screen -AmdS badvpn badvpn-udpgw --listen-addr 127.0.0.1:7300' /etc/rc.local
 chmod +x /usr/bin/badvpn-udpgw
-screen -AmdS badvpn badvpn-udpgw --listen-addr 127.0.0.1:730
+screen -AmdS badvpn badvpn-udpgw --listen-addr 127.0.0.1:7300
 
 # install ddos deflate
 cd
@@ -644,7 +644,7 @@ echo "OpenSSH     : 22"
 echo "Dropbear    : 443"
 echo "OpenVPN     : 1194 TCP"
 echo "STunnel     : 3128 SSL/TLS"
-echo "BadVPN      : 730 UDPGW"
+echo "BadVPN      : 7300 UDPGW"
 echo "Proxy Port  : 8000 / 8080 / 60000"
 echo "PPTP VPN    : 1732"
 echo "Nginx       : 85"
