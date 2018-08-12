@@ -315,7 +315,7 @@ echo "remoteip 10.1.0.5-100" >> /etc/pptpd.conf
 cat >> /etc/ppp/ip-up <<END
 ifconfig ppp0 mtu 1400
 END
-mkdir /var/lib/premium-script
+sudo systemctl enable pptpd
 /etc/init.d/pptpd restart
 
 # install OpenVPN
@@ -645,9 +645,9 @@ echo "BadVPN      : 7300 UDPGW"
 echo "Proxy Port  : 8000 / 8080 / 60000"
 echo "PPTP VPN    : 1732"
 echo "Nginx       : 85"
-echo -e "\e[31mFail2Ban    : [ON >> PROTECTED]\e[0m"  
-echo -e "\e[32mAntiDDOS    : [ON >> PROTECTED]\e[0m"  
-echo -e "\e[33mAntiTorrent : [ON >> PROTECTED]\e[0m"
+echo -e "\e[1;32;44mFail2Ban    : [ON >> PROTECTED]\e[0m"  
+echo -e "\e[1;32;44mAntiDDOS    : [ON >> PROTECTED]\e[0m"  
+echo -e "\e[1;32;44mAntiTorrent : [ON >> PROTECTED]\e[0m"
 echo "Config OpenVPN   : http://$MYIP:85/client.ovpn"  
 echo "Mirror (*.tar.gz): http://$MYIP:85/openvpn.tar.gz"  
 echo "Vnstat           : http://$MYIP:85/vnstat/"  
