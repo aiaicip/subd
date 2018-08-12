@@ -485,7 +485,7 @@ wget https://www.dropbox.com/s/u8ns6vxz778oi4w/monssh
 wget https://www.dropbox.com/s/8db4yzcixp4vcdl/status
 wget https://www.dropbox.com/s/axpwun3cqts7544/alluser-pptp
 wget https://www.dropbox.com/s/uydzradhyc976au/user-add-pptp
-wget https://www.dropbox.com/s/589uk8fjg8wodm9/user-delete-pptp
+wget https://www.dropbox.com/s/3sbna1xrzf7hv97/user-delete-pptp
 wget https://www.dropbox.com/s/0cwodzxnsoaroyh/user-detail-pptp
 wget https://www.dropbox.com/s/fl4sbyy6pejdlia/user-expire-pptp
 wget https://www.dropbox.com/s/oebj6oq9c1ajg00/user-login-pptp
