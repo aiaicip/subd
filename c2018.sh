@@ -616,7 +616,6 @@ Restart Services
 # finalizing services
 apt-get -y autoremove
 chown -R www-data:www-data /home/vps/public_html
-badvpn start
 service nginx start
 service php5-fpm start
 service vnstat restart
