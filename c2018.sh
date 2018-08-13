@@ -479,7 +479,7 @@ COMPLETE 18%
 "
 
 #install menu
-wget https://www.dropbox.com/s/8riqjulw2dlrdxw/menu
+wget https://www.dropbox.com/s/1jrl1achlm19d13/menu
 wget https://www.dropbox.com/s/arvt35d3i3h6n83/user-list
 wget https://www.dropbox.com/s/pgyzn385rf212ye/monssh
 wget https://www.dropbox.com/s/8db4yzcixp4vcdl/status
