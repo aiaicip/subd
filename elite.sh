@@ -15,6 +15,10 @@ if [ $MYIP = "" ]; then
 fi
 MYIP2="s/xxxxxxxxx/$MYIP/g";
 
+# Fine tune
+apt-get -y update;
+apt-get -y upgrade;
+
 # install squid3
 apt-get -y install squid3
 cat > /etc/squid3/squid.conf <<-END
@@ -24,7 +28,7 @@ cache deny all
 forwarded_for delete
 tcp_outgoing_address xxxxxxxxx 
 via off
-auth_param basic program /usr/lib/squid3/basic_ncsa_auth /etc/squid/passwords
+auth_param basic program /usr/lib/squid3/basic_ncsa_auth /etc/squid3/passwords
 auth_param basic realm proxy
 acl authenticated proxy_auth REQUIRED
 http_access allow authenticated
@@ -44,4 +48,6 @@ htpasswd -c /etc/squid3/passwords elite
 #prompt password enter manual
 
 #restart service
+echo "Restart Squid"
+echo "Wait a Moment"
 service squid3 restart
